@@ -1,0 +1,10 @@
+@apiUrl = http://localhost:3000
+
+#####
+###
+POST {{apiUrl}}/domains/rankings
+Content-Type: application/json
+
+{
+"domains": ["facebook.com", "amazon.com"]
+}
