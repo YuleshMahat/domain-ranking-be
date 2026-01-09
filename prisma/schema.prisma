@@ -22,6 +22,8 @@ model Ranking {
 
   domainId Int
   domain   Domain   @relation(fields: [domainId], references: [id])
+
+  @@unique([domainId, date])
 }
 
 

@@ -13,7 +13,6 @@ export class DomainsController {
   @Post('rankings')
   async getRankings(@Body('domains') domains: string[]) {
     const rankings = await this.domainsService.getRankings(domains);
-    console.log(rankings);
     if (rankings)
       return { message: 'Rankings fetched', status: 'success', data: rankings };
     return { message: 'Internal server error', status: 'error' };
