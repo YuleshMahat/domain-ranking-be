@@ -10,6 +10,20 @@ export class DomainsService {
     return this.prisma.domain.findMany();
   }
 
+  inputValidation(domains: string[]) {
+    const domainRegex = /^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+
+    for (const name of domains) {
+      if (!name || !domainRegex.test(name)) {
+        return false;
+      }
+      const segments = name.split('.');
+      if (segments[0].length < 3) return false;
+    }
+
+    return true;
+  }
+
   async getRankings(domains: string[]) {
     const results: Record<string, any> = {};
     for (const name of domains) {
