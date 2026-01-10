@@ -12,6 +12,7 @@ export class NormalizeDomainsPipe implements PipeTransform {
         .trim()
         .toLowerCase()
         .replace(/^https?:\/\//, '')
+        .replace(/^www\./, '')
         .replace(/\/$/, ''),
     );
   }
