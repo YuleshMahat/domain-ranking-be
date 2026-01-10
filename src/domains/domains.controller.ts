@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { DomainsService } from './domains.service';
 
 @Controller('domains')
@@ -14,8 +21,11 @@ export class DomainsController {
   async getRankings(@Body('domains') domains: string[]) {
     const isValidInput = this.domainsService.inputValidation(domains);
 
-    if (!isValidInput)
-      return { message: 'Domian/s input is invalid', status: 'error' };
+    if (isValidInput[0] === 'error')
+      throw new BadRequestException({
+        message: 'Domain input is invalid',
+        invalidDomains: isValidInput[1],
+      });
 
     const rankings = await this.domainsService.getRankings(domains);
     if (rankings)

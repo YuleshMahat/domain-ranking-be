@@ -14,15 +14,15 @@ export class DomainsService {
   inputValidation(domains: string[]) {
     const domainRegex = /^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
+    const invalidDomains: string[] = [];
+
     for (const name of domains) {
       if (!name || !domainRegex.test(name)) {
-        return false;
-      }
-      const segments = name.split('.');
-      if (segments[0].length < 3) return false;
+        invalidDomains.push(name);
+      } else if (name.split('.').length < 3) invalidDomains.push(name);
     }
-
-    return true;
+    if (invalidDomains.length) return ['error', invalidDomains];
+    return ['success'];
   }
 
   async getRankings(domains: string[]) {
