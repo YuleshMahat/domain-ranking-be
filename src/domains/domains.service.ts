@@ -32,7 +32,9 @@ export class DomainsService {
       if (!domain || domain.rankings.length === 0) {
         //fire an API to trensco to get the rankings
 
-        console.log('No domain in the database. Fetching the data.');
+        console.log(
+          'No domain in the database. OR expired domain. Fetching the data.',
+        );
 
         const newRankings = await this.fetchRankingFromApi(name);
 
@@ -69,6 +71,14 @@ export class DomainsService {
       date: new Date(r.date),
     }));
 
+    //delete old ranking if any
+    const deletedRankings = await this.prisma.ranking.deleteMany({
+      where: {
+        domainId: domain.id,
+        date: { in: rankingData.map((r) => r.date) },
+      },
+    });
+
     //upload rankings in the rankings table
     const rankingsUpload = await this.prisma.ranking.createMany({
       data: rankingData,
@@ -79,10 +89,15 @@ export class DomainsService {
   }
 
   async readRankings(name: string) {
+    const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
     return this.prisma.domain.findUnique({
       where: { name },
       include: {
         rankings: {
+          where: {
+            createdAt: { gte: last24Hours },
+          },
           orderBy: { date: 'asc' },
         },
       },

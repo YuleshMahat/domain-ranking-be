@@ -19,6 +19,7 @@ model Ranking {
   id       Int      @id @default(autoincrement())
   rank     Int
   date     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   domainId Int
   domain   Domain   @relation(fields: [domainId], references: [id])
