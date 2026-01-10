@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DomainDB } from 'src/types';
@@ -16,10 +20,10 @@ export class DomainsService {
 
     const invalidDomains: string[] = [];
 
-    for (const name of domains) {
-      if (!name || !domainRegex.test(name)) {
+    for (let name of domains) {
+      if (!domainRegex.test(name) || !name) {
         invalidDomains.push(name);
-      } else if (name.split('.').length < 3) invalidDomains.push(name);
+      }
     }
     if (invalidDomains.length) return ['error', invalidDomains];
     return ['success'];
@@ -32,10 +36,6 @@ export class DomainsService {
 
       if (!domain || domain.rankings.length === 0) {
         //fire an API to trensco to get the rankings
-
-        console.log(
-          'No domain in the database. OR expired domain. Fetching the data.',
-        );
 
         const newRankings = await this.fetchRankingFromApi(name);
 
@@ -108,10 +108,20 @@ export class DomainsService {
   async fetchRankingFromApi(
     domain: string,
   ): Promise<{ ranks: Array<{ date: string; rank: number; domain: string }> }> {
-    const newDomain = await axios.get(
-      process.env.TRANSCO_API_URL + '/' + domain,
-    );
+    try {
+      const response = await axios.get(
+        `${process.env.TRANSCO_API_URL}/${domain}`,
+      );
 
-    return newDomain.data;
+      if (!response.data?.ranks || response.data.ranks.length === 0) {
+        throw new NotFoundException(`No ranking data found for ${domain}`);
+      }
+
+      return response.data;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch ranking data from external API',
+      );
+    }
   }
 }

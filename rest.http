@@ -6,5 +6,5 @@ POST {{apiUrl}}/domains/rankings
 Content-Type: application/json
 
 {
-"domains": ["instagram.com"]
+"domains": ["https://facebook.com"]
 }

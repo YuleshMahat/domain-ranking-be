@@ -7,6 +7,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { DomainsService } from './domains.service';
+import { NormalizeDomainsPipe } from './pipes/normalize-domains.pipe';
 
 @Controller('domains')
 export class DomainsController {
@@ -18,7 +19,7 @@ export class DomainsController {
   }
 
   @Post('rankings')
-  async getRankings(@Body('domains') domains: string[]) {
+  async getRankings(@Body('domains', NormalizeDomainsPipe) domains: string[]) {
     const isValidInput = this.domainsService.inputValidation(domains);
 
     if (isValidInput[0] === 'error')
