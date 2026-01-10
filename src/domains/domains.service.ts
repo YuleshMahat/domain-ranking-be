@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { DomainDB } from 'src/types';
 
 @Injectable()
 export class DomainsService {
@@ -88,7 +89,7 @@ export class DomainsService {
     return { domain: domain.name, inserted: rankingData.length };
   }
 
-  async readRankings(name: string) {
+  async readRankings(name: string): Promise<DomainDB | null> {
     const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     return this.prisma.domain.findUnique({
