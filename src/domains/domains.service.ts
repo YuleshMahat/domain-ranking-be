@@ -119,6 +119,10 @@ export class DomainsService {
 
       return response.data;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
       throw new InternalServerErrorException(
         'Failed to fetch ranking data from external API',
       );
