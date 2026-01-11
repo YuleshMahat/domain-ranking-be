@@ -11,3 +11,8 @@ interface Ranking {
   domainId: number;
   createdAt: Date;
 }
+
+export type TrancoApiResponse = {
+  ranks: Array<{ date: string; rank: number }>;
+  domain: string;
+};

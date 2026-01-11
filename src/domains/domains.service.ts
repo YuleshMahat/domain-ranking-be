@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DomainDB } from 'src/types';
+import { DomainDB, TrancoApiResponse } from 'src/types';
 
 @Injectable()
 export class DomainsService {
@@ -39,10 +39,13 @@ export class DomainsService {
         //fire an API to trensco to get the rankings
 
         const newRankings = await this.fetchRankingFromApi(name);
-
-        await this.createRankings(name, newRankings.ranks);
-
-        domain = await this.readRankings(name);
+        //handle empty data
+        if (!newRankings.ranks.length) {
+          domain = { id: 0, name: newRankings.domain, rankings: [] };
+        } else {
+          await this.createRankings(name, newRankings.ranks);
+          domain = await this.readRankings(name);
+        }
       }
       results[name] = domain
         ? domain.rankings.map((r) => ({
@@ -106,17 +109,11 @@ export class DomainsService {
     });
   }
 
-  async fetchRankingFromApi(
-    domain: string,
-  ): Promise<{ ranks: Array<{ date: string; rank: number; domain: string }> }> {
+  async fetchRankingFromApi(domain: string): Promise<TrancoApiResponse> {
     try {
-      const response = await axios.get(
+      const response = await axios.get<TrancoApiResponse>(
         `${process.env.TRANSCO_API_URL}/${domain}`,
       );
-
-      if (!response.data?.ranks || response.data.ranks.length === 0) {
-        throw new NotFoundException(`No ranking data found for ${domain}`);
-      }
 
       return response.data;
     } catch (error) {
