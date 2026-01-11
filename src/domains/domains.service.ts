@@ -1,4 +1,5 @@
 import {
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -119,8 +120,12 @@ export class DomainsService {
 
       return response.data;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
+      }
+
+      if (error.isAxiosError && error.response?.status === 404) {
+        throw new NotFoundException(`No ranking data found for ${domain}`);
       }
 
       throw new InternalServerErrorException(
